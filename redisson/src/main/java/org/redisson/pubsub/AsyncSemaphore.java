@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author Nikita Koksharov
  *
- * 不同进程之间的通讯、利用redis的pubsub机制通信
  */
 public class AsyncSemaphore {
 

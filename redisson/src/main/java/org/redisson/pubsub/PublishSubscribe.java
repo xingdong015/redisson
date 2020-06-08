@@ -86,7 +86,9 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                 E entry = entries.get(entryName);
                 if (entry != null) {
                     entry.acquire();
+                    //释放一个许可、其他线程就会执行listener方法
                     semaphore.release();
+                    //回调这个的时候表明订阅成功、是从PublishSubscribe的onStatus调用过来的。
                     entry.getPromise().onComplete(new TransferListener<E>(newPromise));
                     System.out.println(Thread.currentThread().getName()+" 执行entry不为空");
                     return;
@@ -106,6 +108,7 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
 
                 RedisPubSubListener<Object> listener = createListener(channelName, value);
                 System.out.println(Thread.currentThread().getName()+" 订阅成功.");
+                //TODO
                 service.subscribe(LongCodec.INSTANCE, channelName, semaphore, listener);
             }
         };

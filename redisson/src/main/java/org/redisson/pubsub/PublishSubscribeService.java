@@ -227,6 +227,7 @@ public class PublishSubscribeService {
     private RFuture<Void> addListeners(ChannelName channelName, RPromise<PubSubConnectionEntry> promise,
                                        PubSubType type, AsyncSemaphore lock, PubSubConnectionEntry connEntry,
                                        RedisPubSubListener<?>... listeners) {
+        System.out.println("添加listeners " + channelName + "," + type + "," + lock + "," + listeners);
         for (RedisPubSubListener<?> listener : listeners) {
             connEntry.addListener(channelName, listener);
         }

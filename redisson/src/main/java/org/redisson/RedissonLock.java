@@ -178,7 +178,7 @@ public class RedissonLock extends RedissonExpirable implements RLock {
         Long ttl      = tryAcquire(leaseTime, unit, threadId);
         // lock acquired
         if (ttl == null) {
-            System.out.println(Thread.currentThread().getName() + " successfully get the  lock.");
+            System.out.println("line 181 " + Thread.currentThread().getName() + " successfully get the  lock.");
             return;
         }
         // 3.等待锁释放，并订阅锁此处这个future一旦连接建立完成并且订阅完成就会返回结果

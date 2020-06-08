@@ -15,28 +15,24 @@
  */
 package org.redisson.pubsub;
 
+import io.netty.channel.ChannelFuture;
+import org.redisson.PubSubMessageListener;
+import org.redisson.PubSubPatternMessageListener;
+import org.redisson.client.*;
+import org.redisson.client.codec.Codec;
+import org.redisson.client.protocol.pubsub.PubSubType;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.redisson.PubSubMessageListener;
-import org.redisson.PubSubPatternMessageListener;
-import org.redisson.client.BaseRedisPubSubListener;
-import org.redisson.client.ChannelName;
-import org.redisson.client.RedisPubSubConnection;
-import org.redisson.client.RedisPubSubListener;
-import org.redisson.client.SubscribeListener;
-import org.redisson.client.codec.Codec;
-import org.redisson.client.protocol.pubsub.PubSubType;
-
-import io.netty.channel.ChannelFuture;
-
 /**
  * 
  * @author Nikita Koksharov
  *
+ * 发布订阅链接实体
  */
 public class PubSubConnectionEntry {
 

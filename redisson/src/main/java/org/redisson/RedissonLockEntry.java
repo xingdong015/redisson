@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
 public class RedissonLockEntry implements PubSubEntry<RedissonLockEntry> {
-    //记录可重入的次数
     private int counter;
 
     private final Semaphore latch;

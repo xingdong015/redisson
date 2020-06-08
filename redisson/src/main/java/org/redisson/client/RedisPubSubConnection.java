@@ -58,13 +58,14 @@ public class RedisPubSubConnection extends RedisConnection {
     }
 
     public void onMessage(PubSubStatusMessage message) {
-        System.out.println("收到发布订阅连接成功消息: "+message);
+        System.out.println("收到发布订阅状态消息: "+message);
         for (RedisPubSubListener<Object> redisPubSubListener : listeners) {
             redisPubSubListener.onStatus(message.getType(), message.getChannel());
         }
     }
 
     public void onMessage(PubSubMessage message) {
+        System.out.println("收到发布订阅消息: "+message);
         for (RedisPubSubListener<Object> redisPubSubListener : listeners) {
             redisPubSubListener.onMessage(message.getChannel(), message.getValue());
         }
