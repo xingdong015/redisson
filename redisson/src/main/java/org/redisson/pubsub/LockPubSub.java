@@ -45,7 +45,7 @@ public class LockPubSub extends PublishSubscribe<RedissonLockEntry> {
                 // 如果entry还有其他Listeners回调，也唤醒执行。
                 runnableToExecute.run();
             }
-            // 释放一个许可，唤醒等待的entry.getLatch().tryAcquire去再次尝试获取锁。
+            // 释放一个许可，唤醒等待的entry.getLatch().tryAcquire去再次尝试获取锁。 唤醒所有等待的线程去抢这个信号量
             value.getLatch().release();
         } else if (message.equals(READ_UNLOCK_MESSAGE)) {
             while (true) {

@@ -54,7 +54,6 @@ import java.util.concurrent.locks.Condition;
  * Implements a <b>non-fair</b> locking so doesn't guarantees an acquire order.
  *
  * @author Nikita Koksharov
- *
  */
 public class RedissonLock extends RedissonExpirable implements RLock {
 
@@ -179,28 +178,35 @@ public class RedissonLock extends RedissonExpirable implements RLock {
         Long ttl      = tryAcquire(leaseTime, unit, threadId);
         // lock acquired
         if (ttl == null) {
+            System.out.println(Thread.currentThread().getName() + " successfully get the  lock.");
             return;
         }
-        // 3.等待锁释放，并订阅锁
+        // 3.等待锁释放，并订阅锁此处这个future一旦连接建立完成并且订阅完成就会返回结果
         RFuture<RedissonLockEntry> future = subscribe(threadId);
         if (interruptibly) {
             commandExecutor.syncSubscriptionInterrupted(future);
         } else {
+            //等待连接建立完成、并且订阅完成只是等待订阅完成、相当于异步等待连接建立、异步执行pub、sub命令完成
             commandExecutor.syncSubscription(future);
         }
 
         try {
             while (true) {
+                //获取锁失败、在尝试获取一次锁
                 ttl = tryAcquire(leaseTime, unit, threadId);
-                System.out.println("tryAcquire......"+Thread.currentThread().getName());
                 // lock acquired
                 if (ttl == null) {
+                    System.out.println(Thread.currentThread().getName() + " successfully get the  lock.");
                     break;
                 }
 
-                // waiting for message
+                System.out.println("Thread:" + Thread.currentThread().getName() + " wait until lock release.");
+                // waiting for message  等到redis的pub消息。如果等到消息了、重新进入while循环、重新强锁、如果强锁失败、则继续进入等待中
                 if (ttl >= 0) {
                     try {
+                        //等待锁释放消息到来  此处这里使用Semaphore的原因是降低redis的压力、如果不使用Semaphore那么
+                        //等收到锁释放消息的时候、所有等待的线程都会一起向redis发送锁请求、这里相当于在进程级别、降低锁的压力、一个进程只有一个
+                        //线程请求redis抢锁
                         future.getNow().getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException e) {
                         if (interruptibly) {

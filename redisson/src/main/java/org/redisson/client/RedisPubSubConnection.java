@@ -15,32 +15,22 @@
  */
 package org.redisson.client;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 import org.redisson.client.codec.Codec;
 import org.redisson.client.protocol.CommandData;
 import org.redisson.client.protocol.RedisCommand;
 import org.redisson.client.protocol.RedisCommands;
 import org.redisson.client.protocol.decoder.MultiDecoder;
-import org.redisson.client.protocol.pubsub.PubSubMessage;
-import org.redisson.client.protocol.pubsub.PubSubMessageDecoder;
-import org.redisson.client.protocol.pubsub.PubSubPatternMessage;
-import org.redisson.client.protocol.pubsub.PubSubPatternMessageDecoder;
-import org.redisson.client.protocol.pubsub.PubSubStatusMessage;
-import org.redisson.client.protocol.pubsub.PubSubType;
+import org.redisson.client.protocol.pubsub.*;
 import org.redisson.misc.RPromise;
 import org.redisson.misc.RedissonPromise;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.FutureListener;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * 
@@ -68,6 +58,7 @@ public class RedisPubSubConnection extends RedisConnection {
     }
 
     public void onMessage(PubSubStatusMessage message) {
+        System.out.println("收到发布订阅连接成功消息: "+message);
         for (RedisPubSubListener<Object> redisPubSubListener : listeners) {
             redisPubSubListener.onStatus(message.getType(), message.getChannel());
         }

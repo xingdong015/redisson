@@ -26,18 +26,19 @@ public class BaseTest implements Runnable {
         RLock lock = redisson.getLock("anyLock");
         lock.lock();
         try {
-            System.out.println("hello world");
-            System.in.read();
-//            Thread.sleep(1000);
+
+            System.out.println(Thread.currentThread().getName() + " hello world");
+            Thread.sleep(3000);
+            lock.unlock();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        lock.unlock();
+
     }
 
     public static void main(String[] args) throws IOException {
         init();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             new Thread(new BaseTest()).start();
         }
         System.in.read();

@@ -74,6 +74,7 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
         RPromise<E> newPromise = new RedissonPromise<E>() {
             @Override
             public boolean cancel(boolean mayInterruptIfRunning) {
+                System.out.println(Thread.currentThread().getName()+" 执行cancel不为空");
                 return semaphore.remove(listenerHolder.get());
             }
         };
@@ -87,6 +88,7 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                     entry.acquire();
                     semaphore.release();
                     entry.getPromise().onComplete(new TransferListener<E>(newPromise));
+                    System.out.println(Thread.currentThread().getName()+" 执行entry不为空");
                     return;
                 }
                 // 订阅监听redis消息，并且创建RedissonLockEntry，其中RedissonLockEntry中比较关键的是一个 Semaphore属性对象用来控制本地的锁请求的信号量同步，返回的是netty框架的Future实现。
@@ -98,10 +100,12 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                     oldValue.acquire();
                     semaphore.release();
                     oldValue.getPromise().onComplete(new TransferListener<E>(newPromise));
+                    System.out.println(Thread.currentThread().getName()+" 执行oldValue不为空");
                     return;
                 }
 
                 RedisPubSubListener<Object> listener = createListener(channelName, value);
+                System.out.println(Thread.currentThread().getName()+" 订阅成功.");
                 service.subscribe(LongCodec.INSTANCE, channelName, semaphore, listener);
             }
         };
@@ -134,6 +138,8 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                     return false;
                 }
 
+                //此处执行到这里会表明连接建立完成、并且订阅完成、然后调用value.getPromise().trySuccess(value);表明promise完成
+                //表明订阅完成
                 if (type == PubSubType.SUBSCRIBE) {
                     value.getPromise().trySuccess(value);
                     return true;
