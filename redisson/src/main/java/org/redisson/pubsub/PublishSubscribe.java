@@ -85,6 +85,7 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
             public void run() {
                 E entry = entries.get(entryName);
                 if (entry != null) {
+                    //订阅成功之后会回调此处
                     entry.acquire();
                     //释放一个许可、其他线程就会执行listener方法
                     semaphore.release();
@@ -93,9 +94,10 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                     System.out.println(Thread.currentThread().getName()+" 执行entry不为空");
                     return;
                 }
+                System.out.println(Thread.currentThread().getName() + " 执行.... line 97");
                 // 订阅监听redis消息，并且创建RedissonLockEntry，其中RedissonLockEntry中比较关键的是一个 Semaphore属性对象用来控制本地的锁请求的信号量同步，返回的是netty框架的Future实现。
                 E value = createEntry(newPromise);
-                value.acquire();
+                value.acquire();//RedissionlockEntry.counter++
 
                 E oldValue = entries.putIfAbsent(entryName, value);
                 if (oldValue != null) {
@@ -144,6 +146,7 @@ abstract class PublishSubscribe<E extends PubSubEntry<E>> {
                 //此处执行到这里会表明连接建立完成、并且订阅完成、然后调用value.getPromise().trySuccess(value);表明promise完成
                 //表明订阅完成
                 if (type == PubSubType.SUBSCRIBE) {
+                    //这里表明promise已经完成
                     value.getPromise().trySuccess(value);
                     return true;
                 }

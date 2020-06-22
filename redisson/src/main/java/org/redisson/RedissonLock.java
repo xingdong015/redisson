@@ -201,7 +201,7 @@ public class RedissonLock extends RedissonExpirable implements RLock {
                 }
 
                 System.out.println("Thread:" + Thread.currentThread().getName() + " wait until lock release.");
-                // waiting for message  等到redis的pub消息。如果等到消息了、重新进入while循环、重新强锁、如果强锁失败、则继续进入等待中
+                // waiting for message  等到redis的pub消息。如果等到消息了、重新进入while循环、重新抢锁、如果强锁失败、则继续进入等待中
                 if (ttl >= 0) {
                     try {
                         //等待锁释放消息到来  此处这里使用Semaphore的原因是降低redis的压力、如果不使用Semaphore那么
