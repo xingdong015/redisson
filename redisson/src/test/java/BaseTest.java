@@ -29,7 +29,7 @@ public class BaseTest implements Runnable {
         try {
 
             System.out.println(Thread.currentThread().getName() + " hello world");
-            Thread.sleep(1000);
+            Thread.sleep(100000000);
             lock.unlock();
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class BaseTest implements Runnable {
     public static void main(String[] args) throws IOException {
 //        testPromise();
         init();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             new Thread(new BaseTest()).start();
         }
         System.in.read();

@@ -182,6 +182,13 @@ public class RedissonLock extends RedissonExpirable implements RLock {
             return;
         }
         // 3.等待锁释放，并订阅锁此处这个future一旦连接建立完成并且订阅完成就会返回结果
+        /**
+         * 2.订阅锁释放事件，并通过 await 方法阻塞等待锁释放，有效的解决了无效的锁申请浪费资源的问题：
+         * 基于信息量，当锁被其它资源占用时，当前线程通过 Redis 的 channel 订阅锁的释放事件，一旦锁释放会发消息通知待等待的线程进行竞争.
+         *
+         * 当 this.await 返回 false，说明等待时间已经超出获取锁最大等待时间，取消订阅并返回获取锁失败.
+         * 当 this.await 返回 true，进入循环尝试获取锁.
+         */
         RFuture<RedissonLockEntry> future = subscribe(threadId);
         if (interruptibly) {
             commandExecutor.syncSubscriptionInterrupted(future);
@@ -192,7 +199,7 @@ public class RedissonLock extends RedissonExpirable implements RLock {
 
         try {
             while (true) {
-                //获取锁失败、在尝试获取一次锁
+                //获取锁失败、死循环尝试不断获取锁，不同之处此处线程会发送阻塞、避免CPU繁忙
                 ttl = tryAcquire(leaseTime, unit, threadId);
                 // lock acquired
                 if (ttl == null) {
@@ -200,7 +207,6 @@ public class RedissonLock extends RedissonExpirable implements RLock {
                     break;
                 }
 
-                System.out.println("Thread:" + Thread.currentThread().getName() + " wait until lock release.");
                 // waiting for message  等到redis的pub消息。如果等到消息了、重新进入while循环、重新抢锁、如果强锁失败、则继续进入等待中
                 if (ttl >= 0) {
                     try {
